@@ -33,6 +33,7 @@ The exact same architecture will be used for delegating queries to third-party e
 - Prediction
 - Recommendation
 - Synthetic data generation
+- [Trustfull Analytics](Trustfull%20Analytics.md)
 - *etc.*
 
 Out of the box, PuffinDB will provide integration with the following databases:
