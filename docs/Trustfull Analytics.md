@@ -20,16 +20,17 @@ We can dream of a specialized query engine that can enforce compliance rules by 
 
 ## Yearly compliance reviews
 
-TODO: describre our real case here
+TODO: describe our real case here
+    ffjsd jfkgjds j fdjd mgmld
 
 ## Weekly commodity P&L positions
 
-TODO: describre our real case here
+TODO: describe our real case here
 
 ## Weekly delta explainations
 
-TODO: describre our real case here, go with our delta/diff stuff
+TODO: describe our real case here, go with our delta/diff stuff
 
 ## Closed data room
 
-TODO: describre our real case here (Insurance data room)
+TODO: describe our real case here (Insurance data room)
