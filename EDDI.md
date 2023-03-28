@@ -17,7 +17,7 @@ Think pipeline *vs.* tanker — EDDI advocates for the latter.
 ## Answer
 The answer consists in leveraging the tens of millions of powerful query engines that will very soon be found at the edge, following the explosive adoption of [DuckDB](https://duckdb.org/). But instead of leveraging them for their local querying capabilities, we should leverage them for their ability to originate complex queries that will be executed on the cloud for the most part, in a massively-distributed fashion. There is a very good reason for that: data is getting heavier and heavier, and the more it does, the less it can escape the cloud's gravitational pull.
 
-One should not think in terms of **big data** anymore. Instead, one should think in terms of **heavy data**.
+One should not think in terms of **big data** anymore. Instead, one should think in terms of **heavy data** (*Cf.* [Cloud Data](CLOUD.md)).
 
 ## Implementation
 While the vision outlined above might seem very ambitious, it could be implemented with a relatively-simple extension to the SQL syntax:
@@ -66,7 +66,7 @@ CREATE TABLE localTable AS SELECT * THROUGH 'https://myPuffinDB.com' FROM remote
 
 ## Components
 For this architecture to work, we need two things:
-1. The [client-side query engine](docs/Clientless.md) and first remote query engine must support this new `SELECT THROUGH` syntax.
+1. The [client-side query engine](docs/Clientless.md) and first [remote query engine](functions/engine/README.md) must support this new `SELECT THROUGH` syntax.
 2. Both remote query engines must expose themselves as HTTP endpoints.
 
 The former will require a fairly sophisticated query planner, while the latter will just need a relatively-simple protocol. For performance and scalability reasons, this protocol should support both synchronous and asynchronous requests. With a synchronous request, the query's result should be returned as a simple response to the HTTP request. With an asynchronous request, the response should just include an Object Store URI from which the query's result could be fetched at a later time (with polling or notification).

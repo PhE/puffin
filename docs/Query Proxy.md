@@ -18,7 +18,7 @@ To achieve these goals, query generation is architected around four main compone
 
 The `puffindb` DuckDB extension is installed once by the user. From there, support for any number of query generators can be added from DuckDB's SQL API, using the public **Registry** managed by PuffinDB. Once a query is submitted by the user through DuckDB's SQL API, it is sent to the cloud-side **Query Proxy**, which forwards it to the **Query Generator**. The query is then translated into SQL and sent back to the user's DuckDB engine for execution.
 
-Several options are currently being considered for the packaging of Query Generators. One of them is to use [WebAssembly](https://webassembly.org/), which would allow both client-side and cloud-side execution. This proposed meta-extension mechanism would also make it easier to develop certain DuckDB extensions, without having to compile them for different platforms (to be confirmed).
+Several options are currently being considered for the packaging of Query Generators. One of them is to use [WebAssembly](https://webassembly.org/), which would allow both client-side and cloud-side execution. This proposed meta-extension mechanism would also make it easier to develop certain DuckDB extensions, without having to compile them for different platforms. Another option is to provide bindings between DuckDB and a collocated [CPython](https://github.com/python/cpython) runtime (barebone or via [Pyodide](https://pyodide.org/)).
 
 ## Query Optimization
 The exact same mechanism used for remote query generation will be used for remote query optimization by the [distributed query planner](Query%20Planner.md). Furthermore, the integration of technologies like [WeTune](https://ipads.se.sjtu.edu.cn/_media/publications/wetune_final.pdf) within the distributed query planner will ensure that machine-generated queries are properly optimized, even in cases where DuckDB's built-in optimizer might prove suboptimal (**query pre-optimization**).
@@ -54,7 +54,7 @@ Out of the box, PuffinDB will provide integration with the following databases:
 
 
 ## Dialect Translation
-When delegating a subquery to a third-party SQL engine with [`SELECT THROUGH`](Clientless.md#select-through), the PuffinDB extension will handle SQL dialect translation, using a serverless function running [SQLGlot](https://github.com/tobymao/sqlglot). This will make it possible to write composite queries involving multiple SQL engines while using a single dialect. The following dialects are currently supported:
+When delegating a subquery to a third-party SQL engine with [`SELECT THROUGH`](Clientless.md#select-through), the PuffinDB extension will handle SQL dialect translation, using [SQLGlot](https://github.com/tobymao/sqlglot) deployed on a collocated [CPython](https://github.com/python/cpython) runtime. This will make it easy to write composite queries involving multiple SQL engines while using a single dialect. The following dialects are currently supported:
 
 - BigQuery
 - ClickHouse
@@ -79,7 +79,7 @@ When delegating a subquery to a third-party SQL engine with [`SELECT THROUGH`](C
 ## Benefits for Vendors
 - No need to develop and distribute any proprietary DuckDB extension
 - No need to develop yet another SQL parser | serializer
-- Access to the metadata of tables managed by the most popular data lakes ([Apache Iceberg](https://iceberg.apache.org/), [Apache Hudi](https://hudi.apache.org/), [Delta Lake](https://delta.io/))
+- Access to the metadata of tables managed by the most popular lakehouses ([Apache Iceberg](https://iceberg.apache.org/), [Apache Hudi](https://hudi.apache.org/), [Delta Lake](https://delta.io/))
 - Direct integration with the user's VPC
 - [Scale-out and scale-up](../CLOUD.md#scale-out-and-scale-up) of complex and | or large queries through [distributed SQL engine](Query%20Engine.md)
 - IP protection when running query generator on vendor's cloud

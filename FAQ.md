@@ -3,20 +3,42 @@
 Please ask new questions as a `Q&A` in [discussions](https://github.com/sutoiku/puffin/discussions).
 
 ## What is PuffinDB?
-PuffinDB is a serverless data lake query engine powered by [Iceberg](https://iceberg.apache.org/) × [DuckDB](https://duckdb.org/) × [Arrow](https://arrow.apache.org/).
+PuffinDB is a serverless [HTAP](docs/HTAP.md) cloud data platform powered by [Arrow](https://arrow.apache.org/) × [DuckDB](https://duckdb.org/) × [Iceberg](https://iceberg.apache.org/).
 
 ## Why should I use PuffinDB?
-PuffinDB makes it much easier to run [DuckDB](https://duckdb.org/) on serverless functions ([AWS Lambda](https://aws.amazon.com/lambda/), [Azure Function](https://learn.microsoft.com/en-us/azure/azure-functions/functions-overview), [Google Cloud Function](https://cloud.google.com/functions)) for executing read | write queries against objects managed by an Object Store ([Amazon S3](https://aws.amazon.com/s3/), [Azure Blob Storage](https://azure.microsoft.com/en-us/products/storage/blobs), [Google Cloud Storage](https://cloud.google.com/storage)) and tables managed by a Lakehouse ([Apache Iceberg](https://iceberg.apache.org/), [Apache Hudi](https://hudi.apache.org/), [Delta Lake](https://delta.io/)).
-
-If you are using DuckDB client-side with [any client application](docs/Clientless.md), adding PuffinDB (just a few clicks on the [AWS Marketplace](https://aws.amazon.com/marketplace)) will let you:
+If you are using DuckDB client-side with [any client application](docs/Clientless.md), adding the [PuffinDB extension](docs/Extension.md) will let you:
+- Distribute queries across thousands of serverless functions and a [Monostore](docs/Monostore.md)
+- Read from and write to hundreds of applications using any [Airbyte connector](https://airbyte.com/connectors)
 - Collaborate on the same [Iceberg tables](https://iceberg.apache.org/spec/) with other users
 - Write back to an Iceberg table with [ACID](https://en.wikipedia.org/wiki/ACID) transactional integrity
-- Handle datasets that are too large for your client
-- Accelerate queries that run too slow on your client
-- Integrate with external data sources (*Cf.* [Edge-Driven Data Integration](EDDI.md))
-- Accelerate the downloading of large tables to your client
-- Schedule fetching and caching of [remote datasets](docs/Clientless.md#scheduled-remote-data-fetching-and-local-caching)
+- Execute [cross-database joins](docs/Query%20Proxy.md#query-delegation) (*Cf.* [Edge-Driven Data Integration](EDDI.md))
+- Translate between 19 [SQL dialects](docs/Query%20Proxy.md#dialect-translation)
+- Invoke [remote query generators](docs/Query%20Proxy.md)
+- Invoke [curl](https://curl.se/) commands
+- Accelerate and | or schedule the downloading of large tables to your client
 - Cache tables and run computations at the edge ([Amazon CloudFront](https://aws.amazon.com/cloudfront/) × [Lambda@Edge](https://aws.amazon.com/lambda/edge/))
+- Log queries on your data lake
+
+## Why develop yet another distributed SQL engine?
+Many excellent distributed SQL engines are available today. Why do we need yet another one?
+
+- [True serverless architecture](RATIONALE.md/#true-serverless-architecture)
+- [Future-proof architecture](RATIONALE.md/#future-proof-architecture)
+- [Designed for virtual private cloud deployment](RATIONALE.md/#designed-for-virtual-private-cloud-deployment)
+- [Designed for small to large datasets](RATIONALE.md/#designed-for-small-to-large-datasets)
+- [Designed for real-time analytics](RATIONALE.md/#designed-for-real-time-analytics)
+- [Designed for interactive analytics](RATIONALE.md/#designed-for-interactive-analytics)
+- [Designed for transformation and analytics](RATIONALE.md/#designed-for-transformation-and-analytics)
+- [Designed for analytics and transactions](RATIONALE.md/#designed-for-analytics-and-transactions)
+- [Designed for next-generation query engines](RATIONALE.md/#designed-for-next-generation-query-engines)
+- [Designed for next-generation file formats](RATIONALE.md/#designed-for-next-generation-file-formats)
+- [Designed for lakehouses](RATIONALE.md/#designed-for-lakehouses)
+- [Designed for data mesh integration](RATIONALE.md/#designed-for-data-mesh-integration)
+- [Designed for all users](RATIONALE.md/#designed-for-all-users)
+- [Designed for extensibility](RATIONALE.md/#designed-for-extensibility)
+- [Designed for embedability](RATIONALE.md/#designed-for-embedability)
+- [Optimized for machine-generated queries](RATIONALE.md/#optimized-for-machine-generated-queries)
+- [Scalable across large user bases](RATIONALE.md/#scalable-across-large-user-bases)
 
 ## What is Cloud Data?
 [Cloud Data](CLOUD.md) is what comes after Big Data.
@@ -63,44 +85,34 @@ If you just make read queries on [Iceberg tables](https://iceberg.apache.org/spe
 Alternatively, you will be able to use [Icecap](docs/Icecap.md) once it becomes available.
 
 ## Will I get billed for Amazon Athena when executing read queries?
-No. You will only be billed for [AWS Lambda](https://aws.amazon.com/lambda/) functions, thanks to the fact that the [Iceberg Java API](https://iceberg.apache.org/docs/latest/api/) used for [table scans](https://iceberg.apache.org/docs/latest/api/#scanning) is packaged as a standalone [AWS Lambda](https://aws.amazon.com/lambda/) function running without [Apache Spark](https://spark.apache.org/). This ensures the lowest possible costs, and a much lower table scan marginal latency under 500 ms. You will get billed for [Amazon Athena](https://aws.amazon.com/athena/) only when doing write queries on [Iceberg tables](https://iceberg.apache.org/spec/). Finally, queries made directly on Object Store objects do not use [Apache Iceberg](https://iceberg.apache.org/), hence do not require [Amazon Athena](https://aws.amazon.com/athena/).
+No. You will only be billed for [AWS Lambda](https://aws.amazon.com/lambda/) functions, thanks to the fact that the [Iceberg Java API](https://iceberg.apache.org/docs/latest/api/) used for [table scans](https://iceberg.apache.org/docs/latest/api/#scanning) is packaged as a standalone [AWS Lambda](https://aws.amazon.com/lambda/) function running without [Apache Spark](https://spark.apache.org/). This ensures the lowest possible costs, and a much lower table scan marginal latency under 500 ms. You will get billed for [Amazon Athena](https://aws.amazon.com/athena/) only when doing write queries on [Iceberg tables](https://iceberg.apache.org/spec/). Finally, write queries made directly on Object Store objects do not use [Apache Iceberg](https://iceberg.apache.org/), hence do not require [Amazon Athena](https://aws.amazon.com/athena/).
 
 ## Which cloud platforms will be supported?
 Initially, [AWS](https://aws.amazon.com/). Support for [Microsoft Azure](https://azure.microsoft.com/en-us) and [Google Cloud](https://cloud.google.com/) will be added in future releases.
 
-## Which lakehouse platforms will be supported?
+## Which Lakehouse platforms will be supported?
 [Apache Iceberg](https://iceberg.apache.org/), [Apache Hudi](https://hudi.apache.org/), and [Delta Lake](https://delta.io/).
 
 ## Why support so many deployment options?
 So that you can pick the one that will work best for you:
-- **Hard**: [Node.js](https://nodejs.org/en/) module deeply integrated within your own tool or application
-- **Easy**:[AWS Lambda](https://aws.amazon.com/lambda/) deployed within your own cloud platform
+- **Hard**: [Bun](https://bun.sh/) and [Python](https://www.python.org/) modules deeply integrated within your own tool or application
+- **Easy**: [AWS Lambda functions](functions/) deployed within your own cloud platform
 - **Easier**: [AWS CloudFormation](https://aws.amazon.com/cloudformation/) template deployed within your own [VPC](https://aws.amazon.com/vpc/)
 - **Easiest**: [AWS Marketplace](https://aws.amazon.com/marketplace) product added to your own cloud environment
 
+## Why not support private cloud deployment?
+Modern public clouds like [Amazon Web Services](https://aws.amazon.com/), [Microsoft Azure](https://azure.microsoft.com/en-us), and [Google Cloud](https://cloud.google.com/) are true marvels of engineering, and have reached a level of sophistication and scale that is far beyond the reach of any corporate IT organization. And as time goes by, the very concept of private cloud is becoming less and less sensical. We have zero interest in spending any resources to deliver a sub-par user experience that will be of interest to less and less organization.
+
+*Be on the right side of history...*
+
 ## Can PuffinDB be deployed on EC2 instances or Fargates?
-Initially, PuffinDB will be deployed on [AWS Lambda](https://aws.amazon.com/lambda/) functions, but support for [Amazon EC2](https://aws.amazon.com/ec2/) and [AWS Fargate](https://aws.amazon.com/fargate/) will be added soon after.
+PuffinDB is deployed on [AWS Lambda](https://aws.amazon.com/lambda/) functions and one [Amazon EC2](https://aws.amazon.com/ec2/) instance. Support for [AWS Fargate](https://aws.amazon.com/fargate/) will be added later on.
 
 ## How is PuffinDB serverless if it is deployed on EC2 instances?
 Fair question. Whenever PuffinDB is deployed on [Amazon EC2](https://aws.amazon.com/ec2/) instances, it still uses fleets of [AWS Lambda](https://aws.amazon.com/lambda/) for loading objects from the Object Store and for processing some parts of distributed queries, while using the EC2 instances for [reduction](https://en.wikipedia.org/wiki/Reduction_operator) purposes. The goal here is to be as serverless as possible, while remaining pragmatic (serverless Fargates remain much less powerful than the largest EC2 instances). Eventually, we expect Fargates to become more and more powerful, so much so that we will not need to rely on EC2 instances anymore for the vast majority of applications and workloads.
 
 ## Do I need a specific client to use PuffinDB?
-From the client side (browser, local application, online service), PuffinDB can be used through any HTTP client, or through [DuckDB](https://duckdb.org/) ([more](docs/Clientless.md)).
-
-## Can I use PuffinDB with Python?
-Of course! There are many ways to do that. One of them is to use any Python package that embeds [DuckDB](https://duckdb.org/), such as [duckdb - PyPi](https://pypi.org/project/duckdb/), then install the [PuffinDB extension](docs/Extension.md) through the SQL API. Another one is to use the [Python](functions/python/README.md) serverless function, which provides a cloud-side Python runtime embedding [DuckDB](https://duckdb.org/), the [DuckDB Python API](https://duckdb.org/docs/api/python/overview.html), and several critical Python libraries (*e.g.* [Ibis](https://ibis-project.org/), [SQLGlot](https://github.com/tobymao/sqlglot)).
-
-## Why use a Redis cluster for distributed shuffles?
-Distributed shuffles require low latency and large transient storage capacity. A large [Amazon ElastiCache for Redis](https://aws.amazon.com/elasticache/redis/) cluster can provide:
-- Submillisecond latency
-- Tens of millions of transactions per second
-- Up to 340 TB of in-memory storage
-
-## Why use a Redis cluster for storing query logs?
-[Query logs](docs/Logs.md) must be accessed with very low latency for looking up the Object Store URI where an earlier query result might be cached. [Amazon ElastiCache for Redis](https://aws.amazon.com/elasticache/redis/) provides submillisecond latency for such queries, at a very reasonable cost. Furthermore, Redis can also be used as a low-latency broker for queuing and synchronization, which is required for the execution of distributed queries.
-
-## What about Dragonfly or KeyDB?
-[Dragonfly](https://dragonflydb.io/) and [KeyDB](https://docs.keydb.dev/) are promising alternatives to [Redis](https://redis.io/). All three use the same API and should be supported equally well.
+No. PuffinDB has a [clientless](docs/Clientless.md) architecture and can be used from any application embedding the [DuckDB](https://duckdb.org/) engine, using a simple [extension](docs/Extension.md).
 
 ## Why embed PRQL and Malloy?
 PuffinDB embeds a [PRQL](https://prql-lang.org/) to SQL translator and a [Malloy](https://www.malloydata.dev/) to SQL translator. Many such translators are available today, for many different applications and syntaxes, but PuffinDB selected these two, because they address two complementary needs: PRQL is great for data preparation, while Malloy is unparalleled for data analytics. Both have been embedded to stress the platform in different ways, and to provide ready-to-use "applications" that can be used to convincingly showcase the platform's capabilities. Nevertheless, they are packaged as optional modules that can be omitted if so desired. Later on, they will be dynamically injected using the [Query Proxy](docs/Query%20Proxy.md).
@@ -121,20 +133,30 @@ Whenever you execute a read query, its result can be cached on the Object Store 
 ## Where can I learn more about SQL query engines?
 These [reference materials](docs/References.md) are a solid starting point.
 
+## Which languages is PuffinDB written in?
+PuffinDB uses the following languages:
+- [C++](https://en.wikipedia.org/wiki/C%2B%2B) for most parts of the [DuckDB extension](docs/Extension.md)
+- [TypeScript](https://www.typescriptlang.org/) for most of the middleware code executed by the [Engine](functions/engine/README.md) serverless function
+- [SMT-LIB](https://smtlib.cs.uiowa.edu/) for the formal models of the [distributed query planner](docs/Query%20Planner.md)
+- [Rust](https://www.rust-lang.org/) for the routines of the [distributed query planner](docs/Query%20Planner.md)
+- [Java](https://en.wikipedia.org/wiki/Java_(programming_language)) for the [connectors](docs/Airbyte.md) to databases
+- [Python](https://www.python.org/) for the [connectors](docs/Airbyte.md) to applications
+- [HCL](https://github.com/hashicorp/hcl) for the [Terraform](https://www.terraform.io/) templates
+
 ## Why is STOIC initiating and funding this open source project?
 [STOIC](https://stoic.com/) is in the business of developing and selling a progressive data platform allowing any data citizen to interact with datasets of any size, from kilobytes to petabytes. In that context, we need to perform read | write SQL queries on large datasets, with low latency (2s or less) and low cost (one or two orders of magnitude lower than conventional solutions). And we need the required query engine to properly support the top-three cloud platforms and the top-three table formats. Furthermore, we want it powered by [Arrow](https://arrow.apache.org/) and [DuckDB](https://duckdb.org/), because there are no better technologies available today. We could not find such an engine distributed under a liberal open source license, so we decided to build one. And because this component is a means to an end for us, yet could benefit countless other projects and organizations, we decided to develop it as an open source project.
 
 ## What is STOIC?
-[STOIC](https://stoic.com/) is a progressive data platform allowing any data citizen to interact with [datasets of any size](https://github.com/stoic-doc/Community/discussions/905), through an intuitive spreadsheet-like user experience. STOIC is built on top of [PuffinDB](http://PuffinDB.io), with a modern [cloud-native architecture](https://github.com/stoic-doc/Community/discussions/908) and a unique [hierarchical caching stack](https://github.com/stoic-doc/Community/discussions/907). Its user interface is designed for a very wide range of [personas](https://github.com/stoic-doc/Community/discussions/752), including business analysts, data architects, and software engineers. It combines a [table editor](https://github.com/stoic-doc/Community/discussions/534), [sheet editor](https://github.com/stoic-doc/Community/discussions/535), and [notebook editor](https://github.com/stoic-doc/Community/discussions/536) into a fully integrated and coherent user experience. It supports [data pipelines](https://github.com/stoic-doc/Community/discussions/904), [data editing](https://github.com/stoic-doc/Community/discussions/903), [workflow automation](https://github.com/stoic-doc/Community/discussions/796), and [insight-driven data visualization](https://github.com/stoic-doc/Community/discussions/469).
+[STOIC](https://stoic.com/) is a progressive data platform allowing any data citizen to interact with [datasets of any size](https://github.com/stoic-doc/Community/discussions/905), through an intuitive spreadsheet-like user experience. STOIC is built on top of [PuffinDB](http://PuffinDB.io), with a modern [cloud-native architecture](https://github.com/stoic-doc/Community/discussions/908) and a unique [hierarchical caching stack](https://github.com/stoic-doc/Community/discussions/907). Its user interface is designed for a very wide range of [personas](https://github.com/stoic-doc/Community/discussions/752), including business analysts, data architects, and software engineers. It combines a [table editor](https://github.com/stoic-doc/Community/discussions/534), [sheet editor](https://github.com/stoic-doc/Community/discussions/535), and [notebook editor](https://github.com/stoic-doc/Community/discussions/536) into a fully integrated and coherent user experience. It supports [data pipelines](https://github.com/stoic-doc/Community/discussions/904), [data editing](https://github.com/stoic-doc/Community/discussions/903), [workflow automation](https://github.com/stoic-doc/Community/discussions/796), and [insight-driven data visualization](https://github.com/stoic-doc/Community/discussions/469). For more information, please check this [presentation](https://www.linkedin.com/feed/update/urn:li:activity:7032716700101873664/).
 
 ## Will STOIC offer hosting services for PuffinDB?
-Not anytime soon. Instead, you will use your [Amazon VPC](https://aws.amazon.com/vpc/) and add PuffinDB from the [AWS Marketplace](https://aws.amazon.com/marketplace), for free. But others might.
+Yes.
 
 ## Why should my organization become a sponsor?
 Vendors and users alike should consider sponsoring the PuffinDB project, for several reasons outlined on our [sponsors](SPONSORS.md) page.
 
 ## When will PuffinDB be released?
-A first version with a naive [distributed query engine](docs/Query%20Engine.md) (filter pushdown to serverless functions) should be released in Q2 (*Cf.* [roadmap](ROADMAP.md)).
+A first version with a naive [distributed query engine](docs/Query%20Engine.md) (filter pushdown to serverless functions) will be released in Q2 (*Cf.* [roadmap](ROADMAP.md)).
 
 ## How may I contribute?
 Please send an email to info at puffindb dot io.
